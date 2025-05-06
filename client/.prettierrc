@@ -1,0 +1,19 @@
+{
+    "trailingComma": "es5",
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "tabWidth": 4,
+    "arrowParens": "always",
+    "endOfLine": "auto",
+    "bracketSpacing": true,
+    "overrides": [
+        {
+            "files": ["*.css", "*.scss", "*.module.css", "*.module.scss"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
+}
