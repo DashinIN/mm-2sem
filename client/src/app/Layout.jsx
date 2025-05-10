@@ -16,6 +16,12 @@ const menuItems = [
         key: '/watch-experiment', // Новый пункт меню
         label: <Link to='/watch-experiment'>Просмотр экспериментов</Link>,
     },
+    {
+        key: '/filtered-experiments',
+        label: (
+            <Link to='/filtered-experiments'>Отфильтрованные эксперименты</Link>
+        ),
+    },
 ];
 
 export const AppLayout = () => {

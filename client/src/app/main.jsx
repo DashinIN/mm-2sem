@@ -8,6 +8,7 @@ import WatchExperiment from '../pages/watch-experiment/WatchExperiment';
 import { AppLayout } from './Layout';
 import 'antd/dist/reset.css';
 import './index.css';
+import FilteredExperiments from '../pages/filtered-experiments/FilteredExperiments';
 
 const queryClient = new QueryClient();
 
@@ -18,7 +19,8 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <App /> },
             { path: 'experiment', element: <Experiment /> },
-            { path: 'watch-experiment', element: <WatchExperiment /> }, // Новый маршрут
+            { path: 'watch-experiment', element: <WatchExperiment /> },
+            { path: 'filtered-experiments', element: <FilteredExperiments /> }, // Новый маршрут
         ],
     },
 ]);

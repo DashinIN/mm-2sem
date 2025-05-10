@@ -115,6 +115,10 @@ const Frame = sequelize.define('Frame', {
         type: DataTypes.NUMERIC,
         allowNull: true,
     },
+    averages: {
+        type: DataTypes.JSON,
+        allowNull: true,
+    },
 }, {
     tableName: 'frames',
     timestamps: false,

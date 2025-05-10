@@ -1,5 +1,4 @@
 import { Button, Input, InputNumber } from 'antd';
-import { DownloadOutlined } from '@ant-design/icons';
 
 const ControlButtons = ({
     operatorName,
@@ -11,10 +10,15 @@ const ControlButtons = ({
     handleMapExecution,
     handleClearData,
     handleSaveExperiment,
-    handleExportClick,
     isLoading,
     hasExperimentData,
 }) => {
+    const handleClear = () => {
+        setOperatorName(''); // Очистка имени пользователя
+        setExperimentDescription(''); // Очистка описания эксперимента
+        handleClearData(); // Вызов основного обработчика очистки
+    };
+
     return (
         <div style={{ marginBottom: '16px' }}>
             <Input
@@ -31,7 +35,7 @@ const ControlButtons = ({
             />
             <InputNumber
                 min={1}
-                max={1000}
+                max={10000}
                 value={frameCount}
                 onChange={(value) => setFrameCount(value)}
                 style={{ marginRight: '8px' }}
@@ -43,26 +47,18 @@ const ControlButtons = ({
             >
                 Выполнить измерения
             </Button>
-            <Button onClick={handleClearData} style={{ marginRight: '8px' }}>
+            <Button onClick={handleClear} style={{ marginRight: '8px' }}>
                 Очистить
             </Button>
             {hasExperimentData && (
-                <>
-                    <Button
-                        type='primary'
-                        onClick={handleSaveExperiment}
-                        style={{ marginRight: '8px' }}
-                        loading={isLoading}
-                    >
-                        Сохранить эксперимент
-                    </Button>
-                    <Button
-                        onClick={handleExportClick}
-                        icon={<DownloadOutlined />}
-                    >
-                        Экспорт в Excel
-                    </Button>
-                </>
+                <Button
+                    type='primary'
+                    onClick={handleSaveExperiment}
+                    style={{ marginRight: '8px' }}
+                    loading={isLoading}
+                >
+                    Сохранить эксперимент
+                </Button>
             )}
         </div>
     );

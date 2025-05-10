@@ -1,7 +1,24 @@
 import { useState } from 'react';
-import { Table, Typography, Button, Select, InputNumber } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { useExperiments, useExperimentFrames } from '../../api/experiments';
+import {
+    Table,
+    Typography,
+    Button,
+    Select,
+    InputNumber,
+    Modal,
+    Input,
+    notification,
+} from 'antd';
+import {
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    ArrowLeftOutlined,
+} from '@ant-design/icons';
+import {
+    useExperiments,
+    useExperimentFrames,
+    useSaveExperiment,
+} from '../../api/experiments';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -29,6 +46,44 @@ const WatchExperiment = () => {
     const [maxValue, setMaxValue] = useState(null); // Максимальное значение
     const [filteredFrames, setFilteredFrames] = useState(null); // Отфильтрованные данные
 
+    // Сохранение отфильтрованных данных
+    const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+    const [filterDescription, setFilterDescription] = useState('');
+
+    // Добавляем состояния для сортировки
+    const [sortField, setSortField] = useState(null);
+    const [sortOrder, setSortOrder] = useState(null);
+
+    const saveExperimentMutation = useSaveExperiment();
+
+    const handleSaveFilteredData = async () => {
+        if (!filteredFrames?.length) return;
+
+        const parentExperiment = getSelectedExperiment();
+        const sortInfo = sortField
+            ? ` | Сортировка: ${sortField} ${sortOrder === 'ascend' ? '↑' : '↓'}`
+            : '';
+
+        // Очищаем frame_id перед сохранением
+        const framesWithoutIds = filteredFrames.map(
+            ({ frame_id, ...frame }) => frame
+        );
+
+        saveExperimentMutation.mutate(
+            {
+                operator_name: parentExperiment.operator,
+                prim: `Фильтрация эксперимента №${selectedExperimentId} (${filterField}: ${minValue || '*'} - ${maxValue || '*'})${sortInfo}: ${filterDescription}`,
+                frames: framesWithoutIds,
+            },
+            {
+                onSuccess: () => {
+                    setIsSaveModalOpen(false);
+                    setFilterDescription('');
+                },
+            }
+        );
+    };
+
     // Применение фильтрации
     const applyFilter = () => {
         const filtered = frames?.filter((frame) => {
@@ -52,6 +107,14 @@ const WatchExperiment = () => {
     const handleExperimentSelect = (experimentId) => {
         setSelectedExperimentId(experimentId);
         setFilteredFrames(null); // Сбрасываем фильтр, чтобы показать все кадры
+    };
+
+    // Обработка возврата к списку экспериментов
+    const handleBackToList = () => {
+        setSelectedExperimentId(null);
+        setFilteredFrames(null);
+        setMinValue(null);
+        setMaxValue(null);
     };
 
     const experimentColumns = [
@@ -185,6 +248,12 @@ const WatchExperiment = () => {
         },
     ];
 
+    const getSelectedExperiment = () => {
+        return experiments?.find(
+            (exp) => exp.experiment_id === selectedExperimentId
+        );
+    };
+
     if (isLoadingExperiments) {
         return <p>Загрузка экспериментов...</p>;
     }
@@ -192,18 +261,75 @@ const WatchExperiment = () => {
     return (
         <div>
             <Title level={2}>Просмотр экспериментов</Title>
-            <Table
-                dataSource={experiments || []}
-                columns={experimentColumns}
-                rowKey='experiment_id'
-                pagination={false}
-                scroll={{ y: 200 }}
-                size='small'
-                locale={tableLocale}
-            />
-            {selectedExperimentId && (
+
+            {!selectedExperimentId ? (
+                // Показываем список экспериментов
+                <Table
+                    dataSource={
+                        experiments?.filter(
+                            (exp) =>
+                                !exp.prim?.includes('Фильтрация эксперимента №')
+                        ) || []
+                    }
+                    columns={experimentColumns}
+                    rowKey='experiment_id'
+                    pagination={false}
+                    scroll={{ y: 600 }} // Увеличил высоту, так как теперь это основной вид
+                    size='small'
+                    locale={tableLocale}
+                />
+            ) : (
+                // Показываем выбранный эксперимент и его кадры
                 <div>
-                    <Title level={3}>Эксперимент: {selectedExperimentId}</Title>
+                    <div
+                        style={{
+                            marginBottom: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '16px',
+                        }}
+                    >
+                        <Button
+                            icon={<ArrowLeftOutlined />}
+                            onClick={handleBackToList}
+                            style={{ marginRight: '16px' }}
+                        >
+                            Назад к списку
+                        </Button>
+                        <div>
+                            <Title level={5}>
+                                Эксперимент: {selectedExperimentId}
+                            </Title>
+                        </div>
+                        <div>
+                            <Title level={5}>
+                                <strong>Автор:</strong>{' '}
+                                {getSelectedExperiment()?.operator}
+                            </Title>
+                        </div>
+                        <div>
+                            <Title level={5}>
+                                <strong>Описание:</strong>{' '}
+                                {getSelectedExperiment()?.prim ||
+                                    'Нет описания'}
+                            </Title>
+                        </div>
+                        <div>
+                            <Title level={5}>
+                                <strong>Дата и время:</strong>{' '}
+                                {new Date(
+                                    getSelectedExperiment()?.datetime
+                                ).toLocaleString()}
+                            </Title>
+                        </div>
+                        <div>
+                            <Title level={5}>
+                                <strong>Количество записей:</strong>{' '}
+                                {frames?.length || 0}
+                            </Title>
+                        </div>
+                    </div>
+
                     <div
                         style={{
                             marginBottom: '16px',
@@ -230,28 +356,79 @@ const WatchExperiment = () => {
                             placeholder='Мин. значение'
                             value={minValue}
                             onChange={(value) => setMinValue(value)}
-                            style={{ width: 150 }} // Увеличиваем ширину
+                            style={{ width: 150 }}
                         />
                         <InputNumber
                             placeholder='Макс. значение'
                             value={maxValue}
                             onChange={(value) => setMaxValue(value)}
-                            style={{ width: 150 }} // Увеличиваем ширину
+                            style={{ width: 150 }}
                         />
                         <Button type='primary' onClick={applyFilter}>
                             Установить фильтр
                         </Button>
                         <Button onClick={resetFilter}>Сбросить фильтр</Button>
+                        {filteredFrames?.length > 0 && (
+                            <Button
+                                type='primary'
+                                onClick={() => setIsSaveModalOpen(true)}
+                            >
+                                Сохранить отфильтрованные данные
+                            </Button>
+                        )}
                     </div>
+
                     <Table
+                        virtual
                         dataSource={filteredFrames || frames || []}
                         columns={frameColumns}
                         rowKey='frame_id'
                         pagination={false}
-                        scroll={{ x: 'max-content', y: 400 }}
+                        scroll={{ x: 'max-content', y: 550 }} // Увеличил высоту, так как это единственная таблица на экране
                         size='small'
                         locale={tableLocale}
+                        onChange={(pagination, filters, sorter) => {
+                            if (sorter.field && sorter.order) {
+                                setSortField(sorter.field);
+                                setSortOrder(sorter.order);
+
+                                // Сортируем данные
+                                const sortedData = [
+                                    ...(filteredFrames || frames || []),
+                                ].sort((a, b) => {
+                                    const aVal = parseFloat(
+                                        a[sorter.field] || 0
+                                    );
+                                    const bVal = parseFloat(
+                                        b[sorter.field] || 0
+                                    );
+                                    return sorter.order === 'ascend'
+                                        ? aVal - bVal
+                                        : bVal - aVal;
+                                });
+
+                                setFilteredFrames(sortedData);
+                            }
+                        }}
                     />
+
+                    <Modal
+                        title='Сохранение отфильтрованных данных'
+                        open={isSaveModalOpen}
+                        onOk={handleSaveFilteredData}
+                        onCancel={() => {
+                            setIsSaveModalOpen(false);
+                            setFilterDescription('');
+                        }}
+                    >
+                        <Input
+                            placeholder='Введите описание для отфильтрованных данных'
+                            value={filterDescription}
+                            onChange={(e) =>
+                                setFilterDescription(e.target.value)
+                            }
+                        />
+                    </Modal>
                 </div>
             )}
         </div>

@@ -8,8 +8,8 @@ dotenv.config();
 const app = express();
 const port = 3000;
 
-// Middleware для обработки JSON
-app.use(express.json());
+// Middleware для обработки JSON с увеличенным лимитом
+app.use(express.json({ limit: '10mb' })); // Увеличьте лимит до 10MB или больше, если нужно
 
 // Разрешить запросы с любого источника (или укажите конкретный источник)
 app.use(cors());
@@ -20,7 +20,7 @@ sequelize.authenticate()
     .catch((err) => console.error('Ошибка подключения к базе данных:', err));
 
 // Синхронизация моделей с базой данных (опционально)
-// sequelize.sync({ alter: true });
+sequelize.sync({ alter: true });
 
 // Маршрут для получения всех экспериментов
 app.get('/experiments', async (req, res) => {
