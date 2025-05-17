@@ -172,11 +172,13 @@ export const Experiment = () => {
             title: 'Кадр',
             dataIndex: 'frameIndex',
             key: 'frameIndex',
+            width: 100,
         },
         ...prioritizedChannels.map((channel) => ({
             title: `Канал ${channel}`,
             dataIndex: `channel_${channel}`,
             key: `channel_${channel}`,
+            width: 120,
             render: (values) =>
                 values ? values.map((v) => v.toFixed(2)).join(', ') : '',
         })),
@@ -184,30 +186,35 @@ export const Experiment = () => {
             title: 'Канал 6',
             dataIndex: 'normX6',
             key: 'normX6',
+            width: 100,
             render: (value) => value.toFixed(2),
         },
         {
             title: 'Среднее К17',
             dataIndex: 'avg',
             key: 'avg',
+            width: 120,
             render: (value) => value.toFixed(2),
         },
         {
             title: 'Дисперсия К17',
             dataIndex: 'variance',
             key: 'variance',
+            width: 120,
             render: (value) => value.toFixed(2),
         },
         {
             title: 'Функция X57',
             dataIndex: 'funcX57',
             key: 'funcX57',
+            width: 120,
             render: (value) => value.toFixed(2),
         },
         {
             title: 'Контроль K4',
             dataIndex: 'inBounds4',
             key: 'inBounds4',
+            width: 100,
             render: (value) =>
                 value ? (
                     <CheckCircleOutlined style={{ color: 'green' }} />
@@ -219,6 +226,7 @@ export const Experiment = () => {
             title: 'Контроль X93',
             dataIndex: 'inBounds93',
             key: 'inBounds93',
+            width: 100,
             render: (value) =>
                 value ? (
                     <CheckCircleOutlined style={{ color: 'green' }} />

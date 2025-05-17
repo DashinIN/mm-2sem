@@ -14,12 +14,14 @@ const FilteredExperiments = () => {
             title: 'Номер эксперимента',
             dataIndex: 'experiment_id',
             key: 'experiment_id',
+            width: 150,
             sorter: (a, b) => a.experiment_id - b.experiment_id,
         },
         {
             title: 'Исходный эксперимент',
             dataIndex: 'prim',
             key: 'source_experiment',
+            width: 150,
             render: (prim) => {
                 const match = prim?.match(/№(\d+)/);
                 return match ? match[1] : '—';
@@ -36,14 +38,12 @@ const FilteredExperiments = () => {
             title: 'Параметры фильтрации',
             dataIndex: 'prim',
             key: 'filter_params',
+            width: 300,
             render: (prim) => {
-                // Извлекаем параметры между скобками и информацию о сортировке
                 const filterMatch = prim?.match(/\((.*?)\)/);
                 const sortMatch = prim?.match(/\| Сортировка: (.*?):/);
-
                 const filterParams = filterMatch ? filterMatch[1] : '';
                 const sortInfo = sortMatch ? ` | ${sortMatch[1]}` : '';
-
                 return filterParams + sortInfo || '—';
             },
         },
@@ -51,12 +51,14 @@ const FilteredExperiments = () => {
             title: 'Автор',
             dataIndex: 'operator',
             key: 'operator',
+            width: 150,
             sorter: (a, b) => a.operator.localeCompare(b.operator),
         },
         {
             title: 'Дата и время',
             dataIndex: 'datetime',
             key: 'datetime',
+            width: 200,
             render: (value) => new Date(value).toLocaleString(),
             sorter: (a, b) => new Date(a.datetime) - new Date(b.datetime),
         },
@@ -64,13 +66,17 @@ const FilteredExperiments = () => {
             title: 'Описание',
             dataIndex: 'prim',
             key: 'description',
+            width: 300,
             render: (prim) => {
-                // Берем только текст после последнего двоеточия
                 const parts = prim?.split(':');
                 return parts ? parts[parts.length - 1].trim() : '—';
             },
         },
     ];
+
+    const getTableWidth = (columns) => {
+        return columns.reduce((total, col) => total + (col.width || 100), 0);
+    };
 
     if (isLoading) {
         return <p>Загрузка отфильтрованных экспериментов...</p>;
@@ -88,7 +94,7 @@ const FilteredExperiments = () => {
                 columns={columns}
                 rowKey='experiment_id'
                 pagination={false}
-                scroll={{ y: 600 }}
+                scroll={{ x: getTableWidth(columns), y: 600 }}
                 size='small'
             />
         </div>

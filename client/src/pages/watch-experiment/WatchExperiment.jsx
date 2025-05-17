@@ -122,30 +122,35 @@ const WatchExperiment = () => {
             title: 'Номер эксперимента',
             dataIndex: 'experiment_id',
             key: 'experiment_id',
+            width: 150,
             sorter: (a, b) => a.experiment_id - b.experiment_id,
         },
         {
             title: 'Автор',
             dataIndex: 'operator',
             key: 'operator',
+            width: 150,
             sorter: (a, b) => a.operator.localeCompare(b.operator),
         },
         {
             title: 'Комментарий',
             dataIndex: 'prim',
             key: 'prim',
+            width: 350,
             sorter: (a, b) => (a.prim || '').localeCompare(b.prim || ''),
         },
         {
             title: 'Дата и время',
             dataIndex: 'datetime',
             key: 'datetime',
+            width: 200,
             render: (value) => new Date(value).toLocaleString(),
             sorter: (a, b) => new Date(a.datetime) - new Date(b.datetime),
         },
         {
             title: 'Действие',
             key: 'action',
+            width: 100,
             render: (_, record) => (
                 <Button
                     type='primary'
@@ -162,12 +167,14 @@ const WatchExperiment = () => {
             title: 'Кадр',
             dataIndex: 'framenum',
             key: 'framenum',
+            width: 80,
             sorter: (a, b) => a.framenum - b.framenum,
         },
         {
             title: 'Канал 1',
             dataIndex: 'k1',
             key: 'k1',
+            width: 100,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) => parseFloat(a.k1 || 0) - parseFloat(b.k1 || 0),
         },
@@ -175,6 +182,7 @@ const WatchExperiment = () => {
             title: 'Канал 2',
             dataIndex: 'k2',
             key: 'k2',
+            width: 100,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) => parseFloat(a.k2 || 0) - parseFloat(b.k2 || 0),
         },
@@ -182,6 +190,7 @@ const WatchExperiment = () => {
             title: 'Канал 3',
             dataIndex: 'k3',
             key: 'k3',
+            width: 100,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) => parseFloat(a.k3 || 0) - parseFloat(b.k3 || 0),
         },
@@ -189,6 +198,7 @@ const WatchExperiment = () => {
             title: 'Канал 47',
             dataIndex: 'k47',
             key: 'k47',
+            width: 100,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) => parseFloat(a.k47 || 0) - parseFloat(b.k47 || 0),
         },
@@ -196,6 +206,7 @@ const WatchExperiment = () => {
             title: 'Канал 6',
             dataIndex: 'k6',
             key: 'k6',
+            width: 100,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) => parseFloat(a.k6 || 0) - parseFloat(b.k6 || 0),
         },
@@ -203,6 +214,7 @@ const WatchExperiment = () => {
             title: 'Среднее K17',
             dataIndex: 'k17sr',
             key: 'k17sr',
+            width: 120,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) =>
                 parseFloat(a.k17sr || 0) - parseFloat(b.k17sr || 0),
@@ -211,6 +223,7 @@ const WatchExperiment = () => {
             title: 'Дисперсия K17',
             dataIndex: 'k17disp',
             key: 'k17disp',
+            width: 120,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) =>
                 parseFloat(a.k17disp || 0) - parseFloat(b.k17disp || 0),
@@ -219,6 +232,7 @@ const WatchExperiment = () => {
             title: 'Функция X57',
             dataIndex: 'k57',
             key: 'k57',
+            width: 120,
             render: (value) => (value ? parseFloat(value).toFixed(2) : '—'),
             sorter: (a, b) => parseFloat(a.k57 || 0) - parseFloat(b.k57 || 0),
         },
@@ -226,6 +240,7 @@ const WatchExperiment = () => {
             title: 'Контроль K4',
             dataIndex: 'k4',
             key: 'k4',
+            width: 100,
             render: (value) =>
                 value === '1' ? (
                     <CheckCircleOutlined style={{ color: 'green' }} />
@@ -238,6 +253,7 @@ const WatchExperiment = () => {
             title: 'Контроль X93',
             dataIndex: 'k93',
             key: 'k93',
+            width: 100,
             render: (value) =>
                 value === '1' ? (
                     <CheckCircleOutlined style={{ color: 'green' }} />
@@ -247,6 +263,11 @@ const WatchExperiment = () => {
             sorter: (a, b) => a.k93 - b.k93,
         },
     ];
+
+    // Функция для подсчета общей ширины колонок
+    const getTableWidth = (columns) => {
+        return columns.reduce((total, col) => total + (col.width || 100), 0);
+    };
 
     const getSelectedExperiment = () => {
         return experiments?.find(
@@ -274,7 +295,7 @@ const WatchExperiment = () => {
                     columns={experimentColumns}
                     rowKey='experiment_id'
                     pagination={false}
-                    scroll={{ y: 600 }} // Увеличил высоту, так как теперь это основной вид
+                    scroll={{ x: getTableWidth(experimentColumns), y: 600 }}
                     size='small'
                     locale={tableLocale}
                 />
@@ -285,8 +306,11 @@ const WatchExperiment = () => {
                         style={{
                             marginBottom: '16px',
                             display: 'flex',
-                            alignItems: 'center',
-                            gap: '16px',
+                            flexDirection:
+                                window.innerWidth < 768 ? 'column' : 'row',
+                            gap: window.innerWidth < 768 ? '8px' : '16px',
+                            alignItems:
+                                window.innerWidth < 768 ? 'stretch' : 'center',
                         }}
                     >
                         <Button
@@ -334,48 +358,120 @@ const WatchExperiment = () => {
                         style={{
                             marginBottom: '16px',
                             display: 'flex',
-                            gap: '16px',
-                            alignItems: 'center',
+                            flexDirection:
+                                window.innerWidth < 768 ? 'column' : 'row',
+                            flexWrap:
+                                window.innerWidth < 768 ? 'nowrap' : 'wrap',
+                            gap: '8px',
                         }}
                     >
-                        <Select
-                            value={filterField}
-                            onChange={(value) => setFilterField(value)}
-                            style={{ width: 200 }}
+                        {/* Filter inputs group */}
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection:
+                                    window.innerWidth < 768 ? 'column' : 'row',
+                                gap: '8px',
+                                flex:
+                                    window.innerWidth < 768 ? '1' : '0 1 auto',
+                            }}
                         >
-                            <Option value='k1'>Канал 1</Option>
-                            <Option value='k2'>Канал 2</Option>
-                            <Option value='k3'>Канал 3</Option>
-                            <Option value='k47'>Канал 47</Option>
-                            <Option value='k6'>Канал 6</Option>
-                            <Option value='k17sr'>Среднее K17</Option>
-                            <Option value='k17disp'>Дисперсия K17</Option>
-                            <Option value='k57'>Функция X57</Option>
-                        </Select>
-                        <InputNumber
-                            placeholder='Мин. значение'
-                            value={minValue}
-                            onChange={(value) => setMinValue(value)}
-                            style={{ width: 150 }}
-                        />
-                        <InputNumber
-                            placeholder='Макс. значение'
-                            value={maxValue}
-                            onChange={(value) => setMaxValue(value)}
-                            style={{ width: 150 }}
-                        />
-                        <Button type='primary' onClick={applyFilter}>
-                            Установить фильтр
-                        </Button>
-                        <Button onClick={resetFilter}>Сбросить фильтр</Button>
-                        {filteredFrames?.length > 0 && (
+                            <Select
+                                value={filterField}
+                                onChange={(value) => setFilterField(value)}
+                                style={{
+                                    width:
+                                        window.innerWidth < 768 ? '100%' : 200,
+                                    minWidth:
+                                        window.innerWidth < 768 ? '100%' : 200,
+                                }}
+                            >
+                                <Option value='k1'>Канал 1</Option>
+                                <Option value='k2'>Канал 2</Option>
+                                <Option value='k3'>Канал 3</Option>
+                                <Option value='k47'>Канал 47</Option>
+                                <Option value='k6'>Канал 6</Option>
+                                <Option value='k17sr'>Среднее K17</Option>
+                                <Option value='k17disp'>Дисперсия K17</Option>
+                                <Option value='k57'>Функция X57</Option>
+                            </Select>
+
+                            <InputNumber
+                                placeholder='Мин. значение'
+                                value={minValue}
+                                onChange={(value) => setMinValue(value)}
+                                style={{
+                                    width:
+                                        window.innerWidth < 768 ? '100%' : 150,
+                                    minWidth:
+                                        window.innerWidth < 768 ? '100%' : 150,
+                                }}
+                            />
+
+                            <InputNumber
+                                placeholder='Макс. значение'
+                                value={maxValue}
+                                onChange={(value) => setMaxValue(value)}
+                                style={{
+                                    width:
+                                        window.innerWidth < 768 ? '100%' : 150,
+                                    minWidth:
+                                        window.innerWidth < 768 ? '100%' : 150,
+                                }}
+                            />
+                        </div>
+
+                        {/* Buttons group */}
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection:
+                                    window.innerWidth < 768 ? 'column' : 'row',
+                                gap: '8px',
+                                flex:
+                                    window.innerWidth < 768 ? '1' : '0 1 auto',
+                            }}
+                        >
                             <Button
                                 type='primary'
-                                onClick={() => setIsSaveModalOpen(true)}
+                                onClick={applyFilter}
+                                style={{
+                                    width:
+                                        window.innerWidth < 768
+                                            ? '100%'
+                                            : 'auto',
+                                }}
                             >
-                                Сохранить отфильтрованные данные
+                                Установить фильтр
                             </Button>
-                        )}
+
+                            <Button
+                                onClick={resetFilter}
+                                style={{
+                                    width:
+                                        window.innerWidth < 768
+                                            ? '100%'
+                                            : 'auto',
+                                }}
+                            >
+                                Сбросить фильтр
+                            </Button>
+
+                            {filteredFrames?.length > 0 && (
+                                <Button
+                                    type='primary'
+                                    onClick={() => setIsSaveModalOpen(true)}
+                                    style={{
+                                        width:
+                                            window.innerWidth < 768
+                                                ? '100%'
+                                                : 'auto',
+                                    }}
+                                >
+                                    Сохранить отфильтрованные данные
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
                     <Table
@@ -384,7 +480,7 @@ const WatchExperiment = () => {
                         columns={frameColumns}
                         rowKey='frame_id'
                         pagination={false}
-                        scroll={{ x: 'max-content', y: 550 }} // Увеличил высоту, так как это единственная таблица на экране
+                        scroll={{ x: getTableWidth(frameColumns), y: 550 }}
                         size='small'
                         locale={tableLocale}
                         onChange={(pagination, filters, sorter) => {

@@ -48,7 +48,7 @@ const ExperimentTable = ({ columns, tableData }) => {
             columns={columns}
             dataSource={tableData}
             pagination={false}
-            scroll={{ y: 500 }}
+            scroll={{ x: true, y: 500 }}
             summary={() => (
                 <Table.Summary fixed='bottom'>
                     <Table.Summary.Row>
