@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Создаем экземпляр axios с базовой конфигурацией
 const apiClient = axios.create({
-    baseURL: 'http://localhost:3000', // Базовый URL для всех запросов
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000', // Fallback to localhost if env not set
     headers: {
         'Content-Type': 'application/json',
     },
