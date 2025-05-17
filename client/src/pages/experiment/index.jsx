@@ -23,6 +23,14 @@ export const Experiment = () => {
     const handleMapExecution = async () => {
         try {
             const Module = await window.Module();
+            // Configure WASM file location
+            Module.locateFile = (path) => {
+                if (path.endsWith('.wasm')) {
+                    return '/plant.wasm';
+                }
+                return path;
+            };
+
             const result = await executeMapMeasurements(Module, frameCount);
             setExperimentData(result);
             notification.success({
