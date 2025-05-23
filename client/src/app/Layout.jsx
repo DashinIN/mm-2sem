@@ -14,12 +14,12 @@ const menuItems = [
     },
     {
         key: '/watch-experiment', // Новый пункт меню
-        label: <Link to='/watch-experiment'>Просмотр экспериментов</Link>,
+        label: <Link to='/watch-experiment'>Обработка данных</Link>,
     },
     {
         key: '/filtered-experiments',
         label: (
-            <Link to='/filtered-experiments'>Отфильтрованные эксперименты</Link>
+            <Link to='/filtered-experiments'>Научно-технические расчеты</Link>
         ),
     },
 ];

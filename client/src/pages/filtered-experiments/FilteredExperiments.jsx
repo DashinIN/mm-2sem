@@ -84,7 +84,9 @@ const FilteredExperiments = () => {
 
     return (
         <div>
-            <Title level={2}>Отфильтрованные эксперименты</Title>
+            <Title level={2}>
+                Эксперименты для научно-технических расчетов
+            </Title>
             <Table
                 dataSource={
                     experiments?.filter((exp) =>
